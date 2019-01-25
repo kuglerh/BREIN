@@ -7,18 +7,18 @@ class Node{
     //the node's name
     private String name;
     //some nodes are allowed to be knocked out
-    private boolean KO;
+    boolean KO;
     //some nodes are allowed to be overexpressed, called FE
-    private boolean FE;
+    boolean FE;
     //some nodes need at least one activator to be turned once
     private boolean needsActivator;
     //valid functions for this node
-    private int[] functions;
+    int[] functions;
     //the names of the nodes whose input is taken into account
     //i.e. the list of nodes that are the sources in connections where this node is the target
-    private ArrayList<Input> inputs;
+    ArrayList<Input> inputs;
     //is this node part of a synchronous model
-    private boolean sync;
+    boolean sync;
     
     
     //the constructor takes the node's name and an array of integers where each number represents a pre-defined boolean function
@@ -53,7 +53,7 @@ class Node{
         inputs.add(input);
     }
     
-    private String getModuleDeclaration(){
+    String getModuleDeclaration(){
         StringBuilder module = new StringBuilder();
         module.append("MODULE node_"+name+"(main");
         //make sure order of inputs is the same as in main
@@ -64,7 +64,7 @@ class Node{
         return module.toString();
     }
     
-    private String getNetworkVars(int valueNumber){
+    String getNetworkVars(int valueNumber){
         StringBuilder module = new StringBuilder();       
         //add a VAR for every optional connection
         for(Input input:inputs){
@@ -86,7 +86,7 @@ class Node{
     }
     
     //valueNumber is the number of value and corresponding transition vars we have in this module.
-    private String getConnectionAndFunctionTransitions(){
+    String getConnectionAndFunctionTransitions(){
         StringBuilder module = new StringBuilder();       
         //add a transition for every optional connection, where the connection must not change
         for(Input input:inputs){
@@ -104,7 +104,7 @@ class Node{
     }
     //freedomExpression is an expression that evaluates to true whenever the state allows the value and ko/fe vars to be free
     //valueNumber is the number of value and corresponding transition vars we have in this module.
-    private String getStateAndValueTransitions(String freedomExpression,int valueNumber){
+    String getStateAndValueTransitions(String freedomExpression,int valueNumber){
         StringBuilder module = new StringBuilder();               
         //if node is KO or FE, allow for transition
         for(int i=0;i<valueNumber;i++){

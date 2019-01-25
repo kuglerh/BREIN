@@ -1,4 +1,4 @@
-﻿directive updates async;
+﻿directive updates sync;
 directive length 20;
 directive uniqueness interactions;
 directive limit 0;

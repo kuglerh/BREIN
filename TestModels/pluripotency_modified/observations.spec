@@ -2,6 +2,29 @@
 
 
 
+// Experiment Twenty from twoi plus LIF Esrrb Knockdown 
+#ExperimentTwenty[0] |=  $twoiPlusLifEsrrbKnockout "Exptwo0 initial expression pattern";
+#ExperimentTwenty[0] |=  $TwoiPlusLifCultureConditions "Exptwo0 culture conditions";
+#ExperimentTwenty[0] |=  $EsrrbGeneKnockDown "Exptwo0 Esrrb knockdown";  
+#ExperimentTwenty[0] |=  $NoOverExpression "Exptwo0 no overexpression";
+#ExperimentTwenty[18] |=  $FinalStatetwoiPlusLifEsrrbKnockout "Exptwo0 penultimate state";
+#ExperimentTwenty[19] |=  $FinalStatetwoiPlusLifEsrrbKnockout "Exptwo0 final state";
+
+// Experiment Twenty One overexpression of Esrrb from twoi to just PD
+#ExperimentTwentyOne[0] |=  $twoiEsrrbOverexpression "Exptwo1 initial expression pattern";
+#ExperimentTwentyOne[0] |=  $JustPdCultureConditions "Exptwo1 culture conditions";
+#ExperimentTwentyOne[0] |=  $NoKnockDowns "Exptwo1 no knockdowns";  
+#ExperimentTwentyOne[0] |=  $EsrrbGeneOverExpression "Exptwo1 no overexpression";
+#ExperimentTwentyOne[18] |=  $FinalStatePdOnlyEsrrbOverexpression "Exptwo1 penultimate state";
+#ExperimentTwentyOne[19] |=  $FinalStatePdOnlyEsrrbOverexpression "Exptwo1 final state";
+
+// Experiment Twenty Two Nanog knockdown in twoi plus lIF
+#ExperimentTwentyTwo[0] |=  $twoiPlusLifNanogKnockdown "Exptwotwo initial expression pattern";
+#ExperimentTwentyTwo[0] |=  $TwoiPlusLifCultureConditions "Exptwotwo culture conditions";
+#ExperimentTwentyTwo[0] |=  $NanogKnockDown "Exptwotwo Nanog knockdown";
+#ExperimentTwentyTwo[0] |=  $NoOverExpression "Exp twotwo no overexpression";
+#ExperimentTwentyTwo[18] |=  $FinalStateNanogKnockout "Exptwotwo penultimate state";
+#ExperimentTwentyTwo[19] |=  $FinalStateNanogKnockout "Exptwotwo final state";
 
 
 
@@ -16,12 +39,77 @@
 
 
 
+// Experiment Twenty Three overexpression of Tfcptwol1 in twoi plus LIF
+#ExperimentTwentyThree[0] |=  $twoiPlusLifTfcptwol1Overexpression "Exptwo3 initial expression pattern";
+#ExperimentTwentyThree[0] |=  $JustPdCultureConditions "Exptwo3 culture conditions";
+#ExperimentTwentyThree[0] |=  $NoKnockDowns "Exptwo3 no knockdowns";
+#ExperimentTwentyThree[0] |=  $Tfcptwol1GeneOverExpression "Exptwo3 Tfcptwol1 overexpression";
+#ExperimentTwentyThree[18] |=  $FinalStateTfcptwol1Overexpression "Exptwo3 penultimate state";
+#ExperimentTwentyThree[19] |=  $FinalStateTfcptwol1Overexpression "Exp two3 final state";
+
+//
+// TWO DKDS PREDICTIONS WE NEED TO CORRECT
+//
+
+// Klf4 Sall4 DKD does not allow pluripotency to be sustained
+#Klf4Sall4DoubleKnockdown[0] |= $TwoiPlusLifWithKlf4Sall4DKD;
+#Klf4Sall4DoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#Klf4Sall4DoubleKnockdown[0] |= $Klf4Sall4DKD;
+#Klf4Sall4DoubleKnockdown[0] |= $NoOverExpression;
+not(#Klf4Sall4DoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained);
+
+// Klftwo Tbx3 DKD does allow pluripotency to be sustained
+#KlftwoTbx3DoubleKnockdown[0] |= $TwoiPlusLifWithKlftwoTbx3DKD;
+#KlftwoTbx3DoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#KlftwoTbx3DoubleKnockdown[0] |= $KlftwoTbx3DKD;
+#KlftwoTbx3DoubleKnockdown[0] |= $NoOverExpression;
+#KlftwoTbx3DoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained;
+#KlftwoTbx3DoubleKnockdown[19] |= $Oct4AndSoxtwoMaintained;
 
 
+//
+// SIX DKDS WE HAVE EXPERIMENTAL EVIDENCE FOR
+//
 
+#GbxtwoNanogDoubleKnockdown[0] |= $TwoiPlusLifWithGbxtwoNanogDKD;
+#GbxtwoNanogDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#GbxtwoNanogDoubleKnockdown[0] |= $GbxtwoNanogDKD;
+#GbxtwoNanogDoubleKnockdown[0] |= $NoOverExpression;
+#GbxtwoNanogDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained;
+#GbxtwoNanogDoubleKnockdown[19] |= $Oct4AndSoxtwoMaintained;
 
+#TfcpKlftwoDoubleKnockdown[0] |= $TwoiPlusLifWithTfcpKlftwoDKD;
+#TfcpKlftwoDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#TfcpKlftwoDoubleKnockdown[0] |= $TfcpKlftwoDKD;
+#TfcpKlftwoDoubleKnockdown[0] |= $NoOverExpression;
+not(#TfcpKlftwoDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained);
 
+#Sall4KlftwoDoubleKnockdown[0] |= $TwoiPlusLifWithSall4KlftwoDKD;
+#Sall4KlftwoDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#Sall4KlftwoDoubleKnockdown[0] |= $Sall4KlftwoDKD;
+#Sall4KlftwoDoubleKnockdown[0] |= $NoOverExpression;
+not(#Sall4KlftwoDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained);
 
+#Klf4EsrrbDoubleKnockdown[0] |= $TwoiPlusLifWithKlf4EsrrbDKD;
+#Klf4EsrrbDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#Klf4EsrrbDoubleKnockdown[0] |= $Klf4EsrrbDKD;
+#Klf4EsrrbDoubleKnockdown[0] |= $NoOverExpression;
+#Klf4EsrrbDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained;
+#Klf4EsrrbDoubleKnockdown[19] |= $Oct4AndSoxtwoMaintained;
+
+#Klf4NanogDoubleKnockdown[0] |= $TwoiPlusLifWithKlf4NanogDKD;
+#Klf4NanogDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#Klf4NanogDoubleKnockdown[0] |= $Klf4NanogDKD;
+#Klf4NanogDoubleKnockdown[0] |= $NoOverExpression;
+#Klf4NanogDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained;
+#Klf4NanogDoubleKnockdown[19] |= $Oct4AndSoxtwoMaintained;
+
+#GbxtwoTfcpDoubleKnockdown[0] |= $TwoiPlusLifWithGbxtwoTfcpDKD;
+#GbxtwoTfcpDoubleKnockdown[0] |= $TwoiPlusLifCultureConditions;
+#GbxtwoTfcpDoubleKnockdown[0] |= $GbxtwoTfcpDKD;
+#GbxtwoTfcpDoubleKnockdown[0] |= $NoOverExpression;
+#GbxtwoTfcpDoubleKnockdown[18] |= $Oct4AndSoxtwoMaintained;
+#GbxtwoTfcpDoubleKnockdown[19] |= $Oct4AndSoxtwoMaintained;
 
 
 

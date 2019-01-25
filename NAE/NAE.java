@@ -25,7 +25,7 @@ public class NAE{
     //the arguments are the names of the files to analyze
     public NAE(String modelFileName,String observationFileName,int solutionLimit)throws Exception{
         this.solutionLimit = solutionLimit;
-        converter = new Converter(modelFileName,observationFileName);
+        converter = new LTLPF(modelFileName,observationFileName);
         resultSets = new ArrayList<>();
     }
     
