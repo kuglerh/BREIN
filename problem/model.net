@@ -1,0 +1,25 @@
+﻿directive updates sync;
+directive length 20;
+directive uniqueness interactions;
+directive regulation noThresholds;
+LIF[!](0..8); CH[!](0..8); PD[!](0..8); Stat3[!-+](0..8); Tcf3[-+](0..17); MEKERK[](0..17); Klf4[!-+](0..8); Gbxtwo[!-+](0..8); Tfcptwol1[!+-](0..8); Esrrb[!-+](0..8); Nanog[!-+](0..8); Klftwo[!-+](0..8); Tbx3[!-+](0..8); Soxtwo[!-+](0..8); Sall4[!-+](0..8); Oct4[!-+](0..8);
+
+Esrrb Tfcptwol1 positive;
+Tfcptwol1 Esrrb positive;
+
+
+Klftwo Nanog positive;
+Nanog Klftwo positive;
+
+
+
+Tbx3 Oct4 positive optional;
+
+Oct4 Sall4 positive;
+Stat3 Oct4 negative optional;
+
+Soxtwo Tbx3 positive;
+
+
+Stat3 Soxtwo negative;
+

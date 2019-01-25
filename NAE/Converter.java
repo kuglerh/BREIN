@@ -5,6 +5,200 @@ import java.util.*;
 
 public class Converter{
     
+    private static boolean[][]  functions = new boolean[][]
+    {
+        {false,false,true,false,false,false,false,false,false},
+        {false,true,true,false,false,false,false,false,false},
+        {false,false,true,false,false,true,false,false,false},
+        {false,true,true,false,false,true,false,false,false},
+        {false,false,true,false,false,true,false,false,true},
+        {false,true,true,false,false,true,false,false,true},
+        {false,true,true,false,true,true,false,false,false},
+        {false,true,true,false,true,true,false,false,true},
+        {false,true,true,false,true,true,false,true,true},
+        {true,true,true,false,false,false,false,false,false},
+        {true,true,true,false,false,true,false,false,false},
+        {true,true,true,false,true,true,false,false,false},    
+        {true,true,true,true,true,true,false,false,false},   
+        {true,true,true,false,false,true,false,false,true},    
+        {true,true,true,false,true,true,false,false,true},   
+        {true,true,true,true,true,true,false,false,true},    
+        {true,true,true,false,true,true,false,true,true},   
+        {true,true,true,true,true,true,false,true,true}
+    };
+    
+    private static boolean verifyFunction(int function,Boolean A1,Boolean A2,Boolean R1,Boolean R2){
+        boolean optional = false;
+        Input a1 = new Input("a1",true,optional);
+        Input a2 = new Input("a2",true,optional);
+        Input r1 = new Input("r1",false,optional);
+        Input r2 = new Input("r2",false,optional);
+        Input[] inputs = new Input[4];
+        inputs[0] = a1;
+        inputs[1] = a2;
+        inputs[2] = r1;
+        inputs[3] = r2;
+        Function f = new Function(function,inputs);
+        String b = f.toString().replaceAll("a1.value",A1.toString()).replaceAll("a2.value",A2.toString()).replaceAll("r1.value",R1.toString()).replaceAll("r2.value",R2.toString()).replaceAll(";","");
+        while(b.length()>6){
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+            b = b.replaceAll("\\(true\\)","true").replaceAll("\\(false\\)","false");
+            b = b.replaceAll("!true","false").replaceAll("!false","true");
+            b = b.replaceAll("\\s","");;
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+        }
+        return Boolean.parseBoolean(b);
+        
+        }
+    
+    private static boolean[] verifyFunction(int function){
+        return new boolean[]{
+        verifyFunction(function,false,false,false,false),
+        verifyFunction(function,true,false,false,false),
+        verifyFunction(function,true,true,false,false),
+        verifyFunction(function,false,false,false,true),
+        verifyFunction(function,true,false,true,false),
+        verifyFunction(function,true,true,true,false),
+        verifyFunction(function,false,false,true,true),
+        verifyFunction(function,true,false,true,true),
+        verifyFunction(function,true,true,true,true),
+        };
+             
+    }
+   
+    public static void main(String args[])throws Exception{
+        boolean[][] b = new boolean[18][9];
+        for(int i = 0;i < 18;i++){
+            b[i] = verifyFunction(i);
+        }
+        boolean valid  = Arrays.deepEquals(functions,b);
+        System.out.println(valid);
+        
+        //now special cases where there are no activators or repressors at all:
+        boolean[] noinput = new boolean[18];
+        for(int i = 0;i < 18;i++){
+            noinput[i] = verifyFunctionWithoutActivatorsOrRepressors(i);
+        }
+        boolean[] proper = new boolean[]{false,false,false,false,false,false,false,false,false,true,true,true,true,true,true,true,true,true};
+        valid  = Arrays.deepEquals(functions,b);
+        System.out.println(valid);
+        
+        
+        //no activators
+        for(int i = 0;i < 18;i++){ b[i] = verifyFunctionWithoutActivators(i);}
+        valid = true;
+        for(int i = 0;i < 18;i++){
+            if(b[i][0]==false) valid = false;
+            if(b[i][2]==true) valid = false;
+            if((i==12)||(i==15)||(i==17)){
+                if(b[i][1]==false) valid = false;
+            }else{
+                if(b[i][1]==true) valid = false;                
+            }
+
+        }
+        System.out.println(valid);
+
+        //no repressors
+        for(int i = 0;i < 18;i++){ b[i] = verifyFunctionWithoutRepressors(i);}
+        valid = true;
+        for(int i = 0;i < 18;i++){
+            if(b[i][0]==true) valid = false;
+            if(b[i][2]==false) valid = false;
+            if((i==0)||(i==2)||(i==4)){
+                if(b[i][1]==true) valid = false;
+            }else{
+                if(b[i][1]==false) valid = false;                
+            }
+
+        }
+        System.out.println(valid);
+        
+        
+        
+    }
+
+        
+    private static boolean verifyFunctionWithoutActivatorsOrRepressors(int function){
+        Input[] inputs = new Input[0];
+
+        Function f = new Function(function,inputs);
+        String b = f.toString().replaceAll(";","");
+        while(b.length()>6){
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+            b = b.replaceAll("\\(true\\)","true").replaceAll("\\(false\\)","false");
+            b = b.replaceAll("!true","false").replaceAll("!false","true");
+            b = b.replaceAll("\\s","");;
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+        }
+        return Boolean.parseBoolean(b);
+        
+    }
+    
+    
+    private static boolean[] verifyFunctionWithoutActivators(int f){
+      return new boolean[]{verifyFunctionWithoutActivators(f,false,false),verifyFunctionWithoutActivators(f,true,false),verifyFunctionWithoutActivators(f,true,true)};
+    }    
+    
+        
+    private static boolean[] verifyFunctionWithoutRepressors(int f){
+      return new boolean[]{verifyFunctionWithoutRepressors(f,false,false),verifyFunctionWithoutRepressors(f,true,false),verifyFunctionWithoutRepressors(f,true,true)};
+    }    
+        private static boolean verifyFunctionWithoutRepressors(int function,Boolean R1,Boolean R2){
+        boolean optional = false;
+
+        Input r1 = new Input("r1",true,optional);
+        Input r2 = new Input("r2",true,optional);
+        Input[] inputs = new Input[2];
+
+        inputs[0] = r1;
+        inputs[1] = r2;
+        Function f = new Function(function,inputs);
+        String b = f.toString().replaceAll("r1.value",R1.toString()).replaceAll("r2.value",R2.toString()).replaceAll(";","");
+        while(b.length()>6){
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+            b = b.replaceAll("\\(true\\)","true").replaceAll("\\(false\\)","false");
+            b = b.replaceAll("!true","false").replaceAll("!false","true");
+            b = b.replaceAll("\\s","");;
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+        }
+        return Boolean.parseBoolean(b);
+        
+    }
+    
+    
+    
+    private static boolean verifyFunctionWithoutActivators(int function,Boolean R1,Boolean R2){
+        boolean optional = false;
+
+        Input r1 = new Input("r1",false,optional);
+        Input r2 = new Input("r2",false,optional);
+        Input[] inputs = new Input[2];
+
+        inputs[0] = r1;
+        inputs[1] = r2;
+        Function f = new Function(function,inputs);
+        String b = f.toString().replaceAll("r1.value",R1.toString()).replaceAll("r2.value",R2.toString()).replaceAll(";","");
+        while(b.length()>6){
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+            b = b.replaceAll("\\(true\\)","true").replaceAll("\\(false\\)","false");
+            b = b.replaceAll("!true","false").replaceAll("!false","true");
+            b = b.replaceAll("\\s","");;
+            b= b.replaceAll("true&true","true").replaceAll("true\\|true","true").replaceAll("true&false","false").replaceAll("true\\|false","true").replaceAll("false&true","false").replaceAll("false\\|true","true")
+            .replaceAll("false&false","false").replaceAll("false\\|false","false");
+        }
+        return Boolean.parseBoolean(b);
+        
+    }
+    
+    
     private String modelFileName;
     private String observationFileName;
     

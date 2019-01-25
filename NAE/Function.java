@@ -26,7 +26,7 @@ class Function{
         this.positiveFunctions = positive.toArray(new Input[0]);
         this.negativeFunctions = negative.toArray(new Input[0]);
         
-        this.functionString = getFunctionWithBranching(type,this.positiveFunctions,this.negativeFunctions);
+        this.functionString = getFunctionWithoutBranching(type,this.positiveFunctions,this.negativeFunctions);
     }
     
     //get this function representation for NuSMV
@@ -486,7 +486,7 @@ class Function{
     public String getFunctionWithoutBranching(int type,Input[] positive,Input[] negative){
         boolean hasActivators = positive.length > 0;
         boolean hasRepressors = negative.length > 0;
-        String functionWithActivatorsAndRepressors = getFunction(type,positive,negative).replaceAll(";","");
+        String functionWithActivatorsAndRepressors = "("+getFunction(type,positive,negative).replaceAll(";","")+")";
         boolean mandatoryActivator = false;
         boolean mandatoryRepressor = false;
         //see if we have any mandatory activators
@@ -499,9 +499,9 @@ class Function{
         }
 
         //otherwise we define three more functions
-        String functionWithActivatorsOnly = getFunction(type,positive,new Input[0]).replaceAll(";","");
-        String functionWithRepressorsOnly = getFunction(type,new Input[0],negative).replaceAll(";","");
-        String functionWithoutActivatorsAndRepressors = getFunction(type,new Input[0],new Input[0]).replaceAll(";","");
+        String functionWithActivatorsOnly = "("+getFunction(type,positive,new Input[0]).replaceAll(";","")+")";
+        String functionWithRepressorsOnly = "("+getFunction(type,new Input[0],negative).replaceAll(";","")+")";
+        String functionWithoutActivatorsAndRepressors = "("+getFunction(type,new Input[0],new Input[0]).replaceAll(";","")+")";
 
         //we also need the branching conditions
         //This is when all activators are not connected. ie !(A|B|C)
@@ -523,7 +523,7 @@ class Function{
         //now we explore all three possibilities
         if((!mandatoryActivator && hasActivators) && (!mandatoryRepressor && hasRepressors)){
             //this is the one case of a double branch
-            return "("+noRepressors+"& ( ("+noActivators+"&"+functionWithoutActivatorsAndRepressors+") | (!"+noActivators+"&"+functionWithActivatorsOnly+") ) ) | !("+noRepressors+"& ( ("+noActivators+"&"+functionWithRepressorsOnly+") | (!"+noActivators+"&"+functionWithActivatorsAndRepressors+") ) );";
+            return "("+noRepressors+"& ( ("+noActivators+"&"+functionWithoutActivatorsAndRepressors+") | (!"+noActivators+"&"+functionWithActivatorsOnly+") ) ) | (!"+noRepressors+"& ( ("+noActivators+"&"+functionWithRepressorsOnly+") | (!"+noActivators+"&"+functionWithActivatorsAndRepressors+") ) );";
         }
         
         if(!mandatoryActivator && hasActivators){
