@@ -28,7 +28,7 @@ class Observation{
 
         //make sure they are all true
         for(Assertion a:assertions){
-            if(!a.value(predicates,experiments,r)) return false;
+            if(!a.value(predicates,experiments,r)) {System.out.println(a);return false;}
         }
         return true;
     }

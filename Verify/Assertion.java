@@ -93,7 +93,9 @@ class Assertion{
     }
 
 
-
+    public String toString(){
+        return assertion;
+    }
 
 
 }

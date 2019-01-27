@@ -18,7 +18,6 @@ public class ResultSet{
         public Boolean[] FE;
         NodeData(int duration,int numExp){
             this.values = new boolean[duration][numExp];
-            this.function = function;
             KO = new Boolean[numExp];
             FE = new Boolean[numExp];
         }        

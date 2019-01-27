@@ -19,13 +19,13 @@ public class NAE{
         NAE nae = new NAE(args[1],args[2],solutionLimit);
         nae.runAnalysisInteractive();
         nae.printResults();
-        //nae.ver(args[1],args[2]);
+        nae.ver(args[1],args[2]);
     }
     
     //the arguments are the names of the files to analyze
     public NAE(String modelFileName,String observationFileName,int solutionLimit)throws Exception{
         this.solutionLimit = solutionLimit;
-        converter = new CTL(modelFileName,observationFileName);
+        converter = new LTLP(modelFileName,observationFileName);
         resultSets = new ArrayList<>();
     }
     
@@ -41,7 +41,7 @@ public class NAE{
         String nusmvFile = converter.getFileName();
 
         //create an interface for running nusmv
-        NuSMVInterface in = new NuSMVInterface(nusmvFile,false);
+        NuSMVInterface in = new NuSMVInterface(nusmvFile,true);
         
         //result loop
         while(true){

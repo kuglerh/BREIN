@@ -38,7 +38,7 @@ public class NuSMVInterface{
         spec = spec.replaceAll("\\n", "").replace("@"," ");
 
         //execute command
-        out.println("check_ltlspec_bmc -k 0 -l X -p \""+spec+"\"");
+        out.println("check_ltlspec_bmc -k 20 -l X -p \""+spec+"\"");
         out.flush();
         String s = readPrompt();
         return s;

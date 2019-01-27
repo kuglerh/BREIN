@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class CTL extends Converter{
-    private HashMap<String,Experiment> experiments;
+    private HashMap<String,Experiment> experimentNameToObj;
     
     public CTL(String s1,String s2)throws Exception{
         super(s1,s2);
@@ -58,9 +58,9 @@ public class CTL extends Converter{
         }
         
         //create an experiment or add to one
-        Experiment exp = experiments.get(experimentName);
+        Experiment exp = experimentNameToObj.get(experimentName);
         if(exp == null){
-            experiments.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
+            experimentNameToObj.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
             return expNum;
         }else{
             exp.add(timeIndex,condition);
@@ -72,7 +72,7 @@ public class CTL extends Converter{
       
           
     int parseExperiment(String line,int expNum){
-        if(experiments==null)experiments = new HashMap<>();
+        if(experimentNameToObj==null)experimentNameToObj = new HashMap<>();
         if(line.contains("fixpoint")) return parseFixPoint(line,expNum);
 
         //first get rid of # and $
@@ -94,9 +94,9 @@ public class CTL extends Converter{
          String condition = tokens[3];
 
          //create an experiment or add to one
-         Experiment exp = experiments.get(experimentName);
+         Experiment exp = experimentNameToObj.get(experimentName);
          if(exp == null){
-             experiments.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
+             experimentNameToObj.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
              return expNum;
          }else{
              exp.add(timeIndex,condition);
@@ -105,7 +105,7 @@ public class CTL extends Converter{
     }
     
     String getSpec(){
-        Experiment[] experimentList = experiments.values().toArray(new Experiment[0]);
+        Experiment[] experimentList = experimentNameToObj.values().toArray(new Experiment[0]);
         StringBuilder code = new StringBuilder();
         code.append(" !((");
         for(int i = 0;i < experimentList.length;i++){
@@ -180,7 +180,7 @@ public class CTL extends Converter{
     }
     
     String generateNuSMV(){
-        int valueNumber = experiments.size();
+        int valueNumber = experimentNameToObj.size();
         StringBuilder code = new StringBuilder();
         //if we are using CTL , i is only to distinguish between initial and non-initial states
         for(Node n:nodes.values()){
