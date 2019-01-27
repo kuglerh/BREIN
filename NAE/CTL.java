@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class CTL extends Converter{
+    private HashMap<String,Experiment> experiments;
     
     public CTL(String s1,String s2)throws Exception{
         super(s1,s2);
@@ -27,9 +28,99 @@ public class CTL extends Converter{
             restriction.append(prefix+connections[i]+"_connected");
         }
         restriction.append(")");
-        restrictions.add(restriction.toString());
+        restrictions.add("!"+restriction.toString());
     }
           
+    private int parseFixPoint(String line,int expNum){
+        //first get rid of # and $ and the word fixpoint and ()
+        line = line.replaceAll("#|\\$|\\s+|;|fixpoint|\\(|\\)","");
+        //sometimes there is a string on this line explaining what it is. We want to remove it for our purposes now
+        String tokens[] = line.split("\"");
+        line = "";
+        
+        for(int i=0;i<tokens.length;i++){
+            //skip everything in quotes, that is all odd numbered indices
+            if(i % 2 == 0){
+               line += tokens[i]; 
+            }
+        }
+        tokens = line.split("\\[|\\]|\\|=");
+        String experimentName = tokens[0];
+        int timeIndex = Integer.parseInt(tokens[1]);
+        //create stabilization condition for fixpoint
+        String condition = "";
+        Node[] nodeArray = nodes.values().toArray(new Node[0]);
+        for(int i = 0; i < nodeArray.length;i++){
+            if(i!=0){
+                condition+="&";
+            }
+            condition +="(" +nodeArray[i].getName()+".value xnor (EX "+nodeArray[i].getName()+".value))";
+        }
+        
+        //create an experiment or add to one
+        Experiment exp = experiments.get(experimentName);
+        if(exp == null){
+            experiments.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
+            return expNum;
+        }else{
+            exp.add(timeIndex,condition);
+            return expNum;
+        }
+    }
+        
+    
+      
+          
+    int parseExperiment(String line,int expNum){
+        if(experiments==null)experiments = new HashMap<>();
+        if(line.contains("fixpoint")) return parseFixPoint(line,expNum);
+
+        //first get rid of # and $
+         line = line.replaceAll("#|\\$|\\s+|;","");
+         //sometimes there is a string on this line explaining what it is. We want to remove it for our purposes now
+         String tokens[] = line.split("\"");
+         line = "";
+
+         for(int i=0;i<tokens.length;i++){
+             //skip everything in quotes, that is all odd numbered indices
+             if(i % 2 == 0){
+                line += tokens[i]; 
+             }
+         }
+
+         tokens = line.split("\\[|\\]|\\|=");
+         String experimentName = tokens[0];
+         int timeIndex = Integer.parseInt(tokens[1]);
+         String condition = tokens[3];
+
+         //create an experiment or add to one
+         Experiment exp = experiments.get(experimentName);
+         if(exp == null){
+             experiments.put(experimentName,new Experiment(experimentName,expNum++).add(timeIndex,condition));
+             return expNum;
+         }else{
+             exp.add(timeIndex,condition);
+             return expNum;
+         }
+    }
+    
+    String getSpec(){
+        Experiment[] experimentList = experiments.values().toArray(new Experiment[0]);
+        StringBuilder code = new StringBuilder();
+        code.append(" !((");
+        for(int i = 0;i < experimentList.length;i++){
+            if(i!=0){
+                code.append("&");
+            }
+            code.append(experimentList[i].getCTLSpec());
+        }
+        code.append(")\n");
+        for(String r:restrictions){
+            code.append("&"+r+"\n");
+        }
+        code.append(")");
+        return code.toString();
+    }    
     //convert macros in observation file to the NuSMV equivalent, define statements
     String observationMacroToDefineStatement(String s){
         
@@ -56,147 +147,19 @@ public class CTL extends Converter{
 
         return name+def;
     }
-        
-
-    //returns the current number of experiments encountered, for use in assigning numbers to newly found experiments
-    int parseExperiment(String line,int expNum){
-        //remove semicolon
-        line = line.replace(";","");
-    
-        //sometimes there is a string on this line explaining what it is, ie a comment. We want to remove it for our purposes 
-        String tokens[] = line.split("\"");
-        line = "";
-        for(int i=0;i<tokens.length;i++){
-            //skip everything in quotes, that is all odd numbered indices
-            if(i % 2 == 0){
-                line += tokens[i]; 
-            }
-        }
-         
-        /*once comments in quotes are removed, begin to parse. The string can contain any number of the following literals:
-            *and -> & 
-            *or ->  |
-            *not -> !
-            *( -> as is
-            *) -> as is
-            *fixpoint(#<EXP-name>[<time-step>])
-            * #<EXP-name>[<time-step>]  |= $<macro>    -> the macro at specified experiment and time-step
-            
-            
-        */
-        
-       
-        line = line.replace("and","&").replace("or","|").replace("not","!");
-        
-        //next, find all SAT requirements.
-        ArrayList<String> reqs = new ArrayList<String>();
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i < line.length();i++){
-            if((line.charAt(i) == '#')&&((i<9)||(!line.substring(i-9,i).equals("fixpoint(")))){
-                while((i < line.length()) && (line.charAt(i) != '$')){sb.append(line.charAt(i));i++;}
-            while((i < line.length()) && (line.charAt(i) != ' ')&& (line.charAt(i) != ')')&& (line.charAt(i) != '}')){sb.append(line.charAt(i));i++;}
-                reqs.add(sb.toString());
-                sb = new StringBuilder();
-            }
-        }
-        
-        //find fixpoints
-        ArrayList<String> fixPoints = new ArrayList<>();
-        String[] fp = line.split("ixpoint\\(");
-        for(int i = 1;i<fp.length;i+=2){
-            String token = fp[i].split("\\)")[0];
-            fixPoints.add(token);
-        }
-        
-        
-        HashMap<String,String> replacments = new HashMap<>();
-        //now parse each one:
-        for(String r:reqs){
-            tokens = r.split("\\[|\\]|\\$");
-            int time = Integer.parseInt(tokens[1]);
-            
-            //update duration
-            if ((time+1)>duration) duration = time+1;
-            
-            
-            String expName = tokens[0].replace("#","");
-            
-            if(experiments.get(expName)==null){
-                experiments.put(expName,expNum);
-                expNum++;
-            }
-            
-            //macro format is name<timeStep>-<ExpNum>
-            String macroName = tokens[3];
-            macroName = macroName + time + "-" + experiments.get(expName);
-            replacments.put(r,macroName);
-        }
-        
-        //parse fixpoints
-        for(String f:fixPoints){
-            tokens = f.split("\\[|\\]");
-            int time = Integer.parseInt(tokens[1]);
-            //update duration
-            if ((time+2)>duration) duration = time+2;
-            
-            int num = experiments.get(tokens[0].replace("#",""));
-         
-            //create stabilization condition for fixpoint
-            String condition = "(";
-            Node[] nodeArray = nodes.values().toArray(new Node[0]);
-            for(int i = 0; i < nodeArray.length;i++){
-                if(i!=0){
-                    condition+="&";
-                }                 
-                //'@' is changed to space later                
-                condition +="(" +nodeArray[i].getName()+".value"+time+"-"+num+"@xnor@"+nodeArray[i].getName()+".value"+(time+1)+"-"+num   +")";
-            }
-            condition+=")";
-            
-            replacments.put("fixpoint("+f+")",condition);
-        }
-        
-        //perform replacements
-        for (Map.Entry<String, String> entry : replacments.entrySet()){
-            line = line.replace(entry.getKey(),entry.getValue());
-        }
-        
-        restrictions.add("!("+line+")");
-        
-        return expNum;
-    }
-
-  
-    String getSpec(){
-        StringBuilder code = new StringBuilder();
-        code.append("(FALSE");
-        
-        for(String r:restrictions){
-            code.append("|("+r+")");
-        }
-        code.append(")");        
-        return code.toString().replaceAll("\\s+","");
-    }
-
-    
-    
-    
-    
-    
-    
-    
-    
+           
     //methods for use in parsing counterExample:   
     //parse the counter Example
     //return null if there is no answer
     public ResultSet parseAnswer(BufferedReader input)throws IOException{
-        
         String line=null; 
         //get connection names for parsing
         String[] connections = getOptionalConnectionNames();
         Boolean[] values = new Boolean[connections.length];
         //parse to get solution
         while((line=input.readLine()) != null) {
+            //if no answer return null
+            if(line.replaceAll("\\s+","").contains("--specification")&& line.replaceAll("\\s+","").contains("istrue")) return null;
             //get rid of leading white space
             line = line.trim();
             //go through connections
@@ -237,7 +200,6 @@ public class CTL extends Converter{
         return code.toString();
     }
     
-
     String getModule(Node n){
         StringBuilder module = new StringBuilder();
         module.append(n.getModuleDeclaration());        
@@ -276,32 +238,66 @@ public class CTL extends Converter{
         return module.toString();
     }
     
+class Experiment{
+    //all observations in this experiment
+    private ArrayList<Observation> observations;
+    private String name;
+    //the number is the position in which it was parsed, useful for LTLP and LTLR modes to tell which variables/states are for which experiment
+    private int number;
+    Experiment(String name,int number){
+        this.name = name;
+        this.number = number;
+        observations = new ArrayList<>();
+    }  
     
-
+    //add a time step and condition, which are then added to our list as an observation object
+    Experiment add(int timeStep,String condition){
+        observations.add(new Observation(timeStep,condition));
+        return this;
+    }
+    
+    //get the duration of this experiment, equivalent to the time-step of the observation with the latest time-step + 1, as the time steps start at 0
+    //this is the number of time steps this experiment lasts for
+    int getDuration(){
+        return Collections.max(observations).timeStep+1;
+    }
+        
+    //returns this experiment as a nusmv CTLSPEC
+    String getCTLSpec(){
+        StringBuilder spec = new StringBuilder("(");
+        Collections.sort(observations);
+        int currentState = -1;
+        for(int i=0;i<observations.size();i++){
+            while(currentState<observations.get(i).timeStep){
+                spec.append(" EX( ");
+                currentState++;
+            }
+            spec.append(observations.get(i).condition);
+            if(i != observations.size()-1){
+                //not last observation
+                spec.append("&");
+            }
+        }
+        //balance the parentheses
+        for(int i =0;i<=currentState+1;i++){
+            spec.append(")");
+        }
+        spec.append("\n");
+        return spec.toString();
+    }
+    final class Observation implements Comparable<Observation> {
+        final int timeStep;
+        final String condition;
+        Observation(int timeStep,String condition){
+            this.timeStep = timeStep;
+            this.condition = condition;
+        }   
+        //we want to be able to compare observations to see which one came first
+        @Override
+        public int compareTo(Observation o){
+           if(this.timeStep==o.timeStep) return 0;
+           return this.timeStep > o.timeStep ? 1 : -1;
+        }  
+    }   
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

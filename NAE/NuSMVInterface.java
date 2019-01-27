@@ -57,7 +57,7 @@ public class NuSMVInterface{
     private String readPrompt(){
         StringBuilder ret = new StringBuilder();
         String l;
-        while((l=in.next())!=null){ 
+        while((l=in.next())!=null){
             if (l.startsWith("NuSMV"))  {in.next();break;}//the call to next() reads past the ">" character
             ret.append(l+in.nextLine()+"\n");
         }
