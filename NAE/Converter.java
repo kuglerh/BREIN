@@ -244,10 +244,7 @@ public abstract class Converter{
         numberOfExperiments = expNum;      
         this.definitions = definitions.toString();
     }
-    
-
-    
-
+       
     //IO helper methods
     BufferedReader readFile(String file) throws IOException {
         BufferedReader in = new BufferedReader(new InputStreamReader( new FileInputStream(file),"UTF-8"));
@@ -264,9 +261,7 @@ public abstract class Converter{
         writer.close();
         
     }
-    
-
-    
+        
     public int getDuration(){return duration;}
     
     public int getNumberOfExperiments(){return numberOfExperiments;}
@@ -286,11 +281,7 @@ public abstract class Converter{
     //for use in printing results out
     String[] getOptionalConnectionNames(){
         return optionalConnectionNames.toArray(new String[optionalConnectionNames.size()]);
-    }
-    
-    
-    
-    
+    }   
     
     //abstract methods 
     abstract String observationMacroToDefineStatement(String s);
@@ -299,12 +290,5 @@ public abstract class Converter{
     abstract public void restrictResult(ResultSet r);
     abstract String getSpec();
     abstract public ResultSet parseAnswer(BufferedReader input)throws IOException;
-    
-    
-    
-    
-    
-    
-    
-    
+     
 }

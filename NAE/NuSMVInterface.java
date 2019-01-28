@@ -73,7 +73,6 @@ public class NuSMVInterface{
             if (l.startsWith("NuSMV"))  {in.next();break;}//the call to next() reads past the ">" character
             ret.append(l+in.nextLine()+"\n");
         }
-        System.out.println(ret.toString());
         return ret.toString();
     }
     

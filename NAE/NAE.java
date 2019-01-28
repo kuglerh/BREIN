@@ -1,5 +1,5 @@
 package NAE;
-import verify.*;
+import validate.*;
 import java.io.*;
 import java.util.*;
 //NAE stands for network analysis engine
@@ -25,15 +25,15 @@ public class NAE{
     //the arguments are the names of the files to analyze
     public NAE(String modelFileName,String observationFileName,int solutionLimit)throws Exception{
         this.solutionLimit = solutionLimit;
-        converter = new LTLP(modelFileName,observationFileName);
+        converter = new TimeStep(modelFileName,observationFileName);
         resultSets = new ArrayList<>();
     }
     
     //validate the given files against the resultSets
     void validate(String s1,String s2)throws Exception{
         for(ResultSet r:resultSets){
-            Verify v =  new Verify(s1,s2,r);
-            System.out.println(v.v(converter.getNumberOfExperiments(),converter.getDuration(),converter.getExperimentToNumberMap()));
+            Validate v =  new Validate(s1,s2,r);
+            System.out.println(v.validate(converter.getNumberOfExperiments(),converter.getDuration(),converter.getExperimentToNumberMap()));
         }
     }
     
@@ -42,7 +42,7 @@ public class NAE{
         String nusmvFile = converter.getFileName();
 
         //create an interface for running nusmv
-        NuSMVInterface in = new NuSMVInterface(nusmvFile,false);
+        NuSMVInterface in = new NuSMVInterface(nusmvFile,true);
         
         //result loop
         while(true){

@@ -3,9 +3,9 @@ package NAE;
 import java.io.*;
 import java.util.*;
 
-public class LTLPF extends Converter{
+public class TimeStep extends Converter{
     
-    public LTLPF(String s1,String s2)throws Exception{
+    public TimeStep(String s1,String s2)throws Exception{
         super(s1,s2);
     }
 

@@ -6,6 +6,8 @@ import java.util.*;
 public class LTLP extends Converter{
     private HashMap<String,Experiment> experimentNameToObj;
 
+    private boolean LTL_MODE = false;
+    
     public LTLP(String s1,String s2)throws Exception{
         super(s1,s2);
     }
@@ -130,7 +132,7 @@ public class LTLP extends Converter{
         return code.toString();
     }
    
-    String getSpecL(){
+    String getSpecSTEP(){
         Experiment[] experimentList = experimentNameToObj.values().toArray(new Experiment[0]);
         StringBuilder code = new StringBuilder();
         code.append("((");
@@ -148,7 +150,7 @@ public class LTLP extends Converter{
         return code.toString();
     }
 
-    String getSpec(){
+    String getSpecLTL(){
         StringBuilder code = new StringBuilder();
         code.append("(FALSE");
         
@@ -159,10 +161,12 @@ public class LTLP extends Converter{
         return "X("+code.toString().replaceAll("\\s+","")+")";
     }
 
-    
+    String getSpec(){
+        return LTL_MODE ? getSpecLTL() : getSpecSTEP();
+    }
     
 
-    int parseExperimentL(String line,int expNum){
+    int parseExperimentSTEP(String line,int expNum){
         if(experimentNameToObj==null)experimentNameToObj = new HashMap<>();
         if(line.contains("fixpoint")) return parseFixPoint(line,expNum);
 
@@ -201,7 +205,7 @@ public class LTLP extends Converter{
     }
 
     //parse experiment from a file not of RE:IN type specs but of ltl
-    int parseExperiment(String line,int expNum){
+    int parseExperimentLTL(String line,int expNum){
         //remove semicolon
         line = line.replace(";","");
     
@@ -259,7 +263,9 @@ public class LTLP extends Converter{
         return expNum;
     }
     
-    
+    int parseExperiment(String line,int expNum){
+        return LTL_MODE ? parseExperimentLTL(line,expNum) : parseExperimentSTEP(line,expNum);
+    }
               
     private int parseFixPoint(String line,int expNum){
         //first get rid of # and $ and the word fixpoint and ()
@@ -300,11 +306,15 @@ public class LTLP extends Converter{
         }
     }
         
-    
-      
-    
-    
+    void parseObservation() throws Exception{
+        LTL_MODE = observationFileName.contains(".ltlspec");
+        super.parseObservation();
+    }  
     public ResultSet parseAnswer(BufferedReader input)throws IOException{
+        return LTL_MODE ? parseAnswerLTL(input) : parseAnswerSTEP(input);
+    }
+    
+    public ResultSet parseAnswerLTL(BufferedReader input)throws IOException{
         int timeStep = -2;
         int duration = getDuration();
         int numExp = getNumberOfExperiments();
@@ -397,16 +407,8 @@ public class LTLP extends Converter{
         return new ResultSet(nodeVals,optionalConnections);
     }
 
-    
-    
-    
-
-
-    
-    //methods for use in parsing counterExample:   
-    //parse the counter Example
-    //return null if there is no answer
-    public ResultSet parseAnswerL(BufferedReader input)throws IOException{
+     
+    public ResultSet parseAnswerSTEP(BufferedReader input)throws IOException{
         int timeStep = -2;
         int duration = getDuration();
         int numExp = getNumberOfExperiments();

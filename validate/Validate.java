@@ -1,10 +1,10 @@
-package verify;
+package validate;
 
 import NAE.*;
 import java.io.*;
 import java.util.*;
 
-public class Verify{
+public class Validate{
     
     //an enum describing the state of a  list of booleans, where all, some, or none are true, or none exsist. Used in evaluating transition functions
     private enum State{
@@ -41,7 +41,7 @@ public class Verify{
     
     
     //@TODO only for testing quick and dirty will remove later 
-    public boolean v(int numExp,int d,HashMap<String,Integer> e)throws IOException{
+    public boolean validate(int numExp,int d,HashMap<String,Integer> e)throws IOException{
         AbstractModel m = parseAbstractModel();
         boolean model =  sync ? validateResultSetSync(m,resultSet,numExp,d) : validateResultSetAsync(m,resultSet,numExp,d);
         boolean observation = parseObservations().validate(resultSet,e);
@@ -49,7 +49,7 @@ public class Verify{
     }
     
     //takes 2 files, a model, and observations, as well as a ResultSet, and validates the solution, both against the model and the observations
-    public Verify(String abstractModelFileName,String observationFileName,ResultSet r){
+    public Validate(String abstractModelFileName,String observationFileName,ResultSet r){
         this.abstractModelFileName = abstractModelFileName;
         this.observationFileName = observationFileName;
         this.resultSet = r;
