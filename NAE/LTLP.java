@@ -101,7 +101,7 @@ public class LTLP extends Converter{
 
     
     String generateNuSMV(){
-        int valueNumber = experimentNameToObj.size();
+        int valueNumber = experiments.size();
         StringBuilder code = new StringBuilder();
 
         for(Node n:nodes.values()){
@@ -130,7 +130,7 @@ public class LTLP extends Converter{
         return code.toString();
     }
    
-    String getSpec(){
+    String getSpecL(){
         Experiment[] experimentList = experimentNameToObj.values().toArray(new Experiment[0]);
         StringBuilder code = new StringBuilder();
         code.append("((");
@@ -148,8 +148,21 @@ public class LTLP extends Converter{
         return code.toString();
     }
 
+    String getSpec(){
+        StringBuilder code = new StringBuilder();
+        code.append("(FALSE");
+        
+        for(String r:restrictions){
+            code.append("|("+r+")");
+        }
+        code.append(")");        
+        return "X("+code.toString().replaceAll("\\s+","")+")";
+    }
 
-    int parseExperiment(String line,int expNum){
+    
+    
+
+    int parseExperimentL(String line,int expNum){
         if(experimentNameToObj==null)experimentNameToObj = new HashMap<>();
         if(line.contains("fixpoint")) return parseFixPoint(line,expNum);
 
@@ -173,10 +186,7 @@ public class LTLP extends Converter{
 
         //update duration
         if ((timeIndex+1)>duration) duration = timeIndex+1;
-            
-            
-         
-         
+              
          //create an experiment or add to one
          Experiment exp = experimentNameToObj.get(experimentName);
          if(exp == null){
@@ -190,6 +200,66 @@ public class LTLP extends Converter{
          }
     }
 
+    //parse experiment from a file not of RE:IN type specs but of ltl
+    int parseExperiment(String line,int expNum){
+        //remove semicolon
+        line = line.replace(";","");
+    
+        //sometimes there is a string on this line explaining what it is, ie a comment. We want to remove it for our purposes 
+        String tokens[] = line.split("\"");
+        line = "";
+        for(int i=0;i<tokens.length;i++){
+            //skip everything in quotes, that is all odd numbered indices
+            if(i % 2 == 0){
+                line += tokens[i]; 
+            }
+        }
+        
+        line = line.replace("and","&").replace(" or ","|").replace("not","!").replace(" or(","|(").replace(")or ",")|").replace(")or(",")|(");
+        
+        //next, find all SAT requirements.
+        ArrayList<String> reqs = new ArrayList<String>();
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < line.length();i++){
+            if((line.charAt(i) == '#')){
+                while((i < line.length()) && (line.charAt(i) != '$')){sb.append(line.charAt(i));i++;}
+            while((i < line.length()) && (line.charAt(i) != ' ')&& (line.charAt(i) != ')')&& (line.charAt(i) != '}')){sb.append(line.charAt(i));i++;}
+                reqs.add(sb.toString());
+                sb = new StringBuilder();
+            }
+        }
+        
+        HashMap<String,String> replacments = new HashMap<>();
+        //now parse each one:
+        for(String r:reqs){
+            tokens = r.replaceAll("\\s+","").split("\\|=");
+            
+            
+            String expName = tokens[0].replace("#","");
+            
+            if(experiments.get(expName)==null){
+                experiments.put(expName,expNum);
+                expNum++;
+            }
+            
+            //macro format is name<timeStep>-<ExpNum>
+            String macroName = tokens[1].replace("$","");
+            macroName = macroName  + experiments.get(expName);
+            replacments.put(r,macroName);
+        }
+        
+        
+        //perform replacements
+        for (Map.Entry<String, String> entry : replacments.entrySet()){
+            line = line.replace(entry.getKey(),entry.getValue());
+        }
+        
+        restrictions.add("!("+line+")");
+        
+        return expNum;
+    }
+    
+    
               
     private int parseFixPoint(String line,int expNum){
         //first get rid of # and $ and the word fixpoint and ()
@@ -234,6 +304,100 @@ public class LTLP extends Converter{
       
     
     
+    public ResultSet parseAnswer(BufferedReader input)throws IOException{
+        int timeStep = -2;
+        int duration = getDuration();
+        int numExp = getNumberOfExperiments();
+        HashMap<String,ResultSet.NodeData> nodeVals = new HashMap<>();
+        HashMap<String,Boolean> optionalConnections = new HashMap<>();
+        
+       
+        String line = null;
+        while((line=input.readLine()) != null) {
+            //remove all whitespace 
+            line = line.replaceAll("\\s+","");
+            
+                     
+            if(line.contains("--specification")&&line.contains("istrue")) return null;
+
+        
+            //parse connections --
+            else if(line.contains("_connected=")){
+                String[] tokens = line.split("_|=");
+                String connectionName = tokens[0];
+                boolean value = Boolean.parseBoolean(tokens[2]);
+                
+                //add data
+                optionalConnections.put(connectionName,value);
+            }
+            
+            //parse functions one hot  encoding --
+            else if(line.contains(".transition")){
+                //    B.transition = 5
+
+                String[] tokens = line.split("\\.|=");
+                
+                String node = tokens[0];
+                int number = Integer.parseInt(tokens[2]);
+                
+                //add data
+                if(nodeVals.get(node)==null) nodeVals.put(node,new ResultSet.NodeData(duration,numExp));
+                
+                nodeVals.get(node).function = number;
+                
+            }
+            
+            //parse KO
+            else if(line.contains(".KO")){
+                //verify this is not just a connection to a node whose name includes 'KO',
+                String[] tokens = line.split("\\.");
+                if ((tokens.length==2)&&tokens[1].contains("KO")){
+                    //node.KO1=TRUE 
+                    tokens = line.split("\\.KO|=");
+                    String node = tokens[0];
+                    int expNum = Integer.parseInt(tokens[1]);
+                    boolean value = Boolean.parseBoolean(tokens[2]);
+                    
+                    //add data
+                    if(nodeVals.get(node)==null) nodeVals.put(node,new ResultSet.NodeData(duration,numExp));
+                    
+                    nodeVals.get(node).KO[expNum] = value;
+                }
+            }
+            
+            //parse FE
+            else if(line.contains(".FE")){
+                //verify this is not just a connection to a node whose name includes 'FE',
+                String[] tokens = line.split("\\.");
+                if ((tokens.length==2)&&tokens[1].contains("FE")){
+                    //node.KO1=TRUE 
+                    tokens = line.split("\\.FE|=");
+                    String node = tokens[0];
+                    int expNum = Integer.parseInt(tokens[1]);
+                    boolean value = Boolean.parseBoolean(tokens[2]);
+                    
+                    //add data
+                    if(nodeVals.get(node)==null) nodeVals.put(node,new ResultSet.NodeData(duration,numExp));
+                    
+                    nodeVals.get(node).FE[expNum] = value;
+                }
+            }
+            
+            //if no answer return null
+            else if(line.contains("--nocounterexamplefoundwithbound19")) return null;
+        }
+        
+        //add functions of nodes with only one possible function
+        for (Map.Entry<String, Integer> entry : nodesWithOneFunction.entrySet()){
+            if(nodeVals.get(entry.getKey())==null) nodeVals.put(entry.getKey(),new ResultSet.NodeData(duration,numExp));
+            nodeVals.get(entry.getKey()).function = entry.getValue();  
+        }
+        
+        
+        return new ResultSet(nodeVals,optionalConnections);
+    }
+
+    
     
     
 
@@ -242,7 +406,7 @@ public class LTLP extends Converter{
     //methods for use in parsing counterExample:   
     //parse the counter Example
     //return null if there is no answer
-    public ResultSet parseAnswer(BufferedReader input)throws IOException{
+    public ResultSet parseAnswerL(BufferedReader input)throws IOException{
         int timeStep = -2;
         int duration = getDuration();
         int numExp = getNumberOfExperiments();
@@ -355,33 +519,10 @@ public class LTLP extends Converter{
         return new ResultSet(nodeVals,optionalConnections);
     }
 
-
- 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     
-class Experiment{
+    
+    
+    class Experiment{
     //all observations in this experiment
     private ArrayList<Observation> observations;
     private String name;
@@ -448,13 +589,6 @@ class Experiment{
         }  
     }   
 }
-
-          
-
-    
-
-
-
 }
 
 

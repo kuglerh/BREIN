@@ -19,7 +19,7 @@ public class NAE{
         NAE nae = new NAE(args[1],args[2],solutionLimit);
         nae.runAnalysisInteractive();
         nae.printResults();
-        nae.ver(args[1],args[2]);
+        //nae.validate(args[1],args[2]);
     }
     
     //the arguments are the names of the files to analyze
@@ -29,7 +29,8 @@ public class NAE{
         resultSets = new ArrayList<>();
     }
     
-    void ver(String s1,String s2)throws Exception{
+    //validate the given files against the resultSets
+    void validate(String s1,String s2)throws Exception{
         for(ResultSet r:resultSets){
             Verify v =  new Verify(s1,s2,r);
             System.out.println(v.v(converter.getNumberOfExperiments(),converter.getDuration(),converter.getExperimentToNumberMap()));
@@ -41,7 +42,7 @@ public class NAE{
         String nusmvFile = converter.getFileName();
 
         //create an interface for running nusmv
-        NuSMVInterface in = new NuSMVInterface(nusmvFile,true);
+        NuSMVInterface in = new NuSMVInterface(nusmvFile,false);
         
         //result loop
         while(true){

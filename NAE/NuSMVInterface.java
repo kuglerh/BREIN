@@ -36,19 +36,31 @@ public class NuSMVInterface{
     private String checkLTL(String spec)throws Exception{
         //remove newlines
         spec = spec.replaceAll("\\n", "").replace("@"," ");
-
         //execute command
-        out.println("check_ltlspec_bmc -k 20 -l X -p \""+spec+"\"");
+        out.println("check_ltlspec_bmc_inc -k 20  -p \""+spec+"\"");
         out.flush();
         String s = readPrompt();
         return s;
     }
+    
+    private String checkINVARBMC(String spec)throws Exception{
+        //remove newlines
+        spec = spec.replaceAll("\\n", "").replace("@"," ");
+
+        //execute command
+        out.println("check_invar_bmc -a een-sorensson -p \""+spec+"\"");
+        out.flush();
+        String s = readPrompt();
+        return s;
+    }
+    
+    
    
     private String checkCTL(String spec)throws Exception{
         //remove newlines
         spec = spec.replaceAll("\\s+","").replace("@"," ");
         //execute command
-        out.println("check_ctlspec -p \""+spec+"\"");
+        out.println("check_ltlspec -p \""+spec+"\"");
         out.flush();
         String s = readPrompt();
         return s;
@@ -61,6 +73,7 @@ public class NuSMVInterface{
             if (l.startsWith("NuSMV"))  {in.next();break;}//the call to next() reads past the ">" character
             ret.append(l+in.nextLine()+"\n");
         }
+        System.out.println(ret.toString());
         return ret.toString();
     }
     
