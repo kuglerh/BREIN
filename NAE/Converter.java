@@ -5,6 +5,8 @@ import java.util.*;
 
 public abstract class Converter{
     
+    //an enum that describes how this converter's specs should be run
+    public static enum SpecType {LTL_BMC_0,LTL_BMC, LTL_BDD,CTL}
     
     String modelFileName;
     String observationFileName;
@@ -283,6 +285,9 @@ public abstract class Converter{
         return optionalConnectionNames.toArray(new String[optionalConnectionNames.size()]);
     }   
     
+    //this method is used to set the bmc length of Converters running .ltlspec files 
+    void setDuration(int d){duration = d;}
+    
     //abstract methods 
     abstract String observationMacroToDefineStatement(String s);
     abstract int parseExperiment(String line,int expNum);
@@ -290,5 +295,5 @@ public abstract class Converter{
     abstract public void restrictResult(ResultSet r);
     abstract String getSpec();
     abstract public ResultSet parseAnswer(BufferedReader input)throws IOException;
-     
+    abstract public SpecType getSpecType();
 }

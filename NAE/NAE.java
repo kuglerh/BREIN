@@ -12,27 +12,127 @@ public class NAE{
     //a list of all ResultSets found, each one corresponding to one solution.
     private ArrayList<ResultSet> resultSets;
     
+    //a string to help the user
+    private static final String helpString = "";
+    
+    private static final int defaultBMCLength = 20;
+    
     //an analysis can be run from the cmd-line
     public static void main(String args[])throws Exception{
+        /*here is the format:
+          solutionLimit model spec mode 
+          modes are:
+          1) time_step - can only run on .spec files
+          2) temporal_logic_bmc
+          3) temporal_logic_bdd
+          4) ctl - currently under development
+          
+          if mode is temporal_logic_bmc, asumed bmc length is 20
+          
+          optional args: -bmc <length> - set bmc length
+          -v - perform validation
+        */
+        if(args.length<4){
+            System.out.println(helpString);
+            System.exit(0);
+        }
         
-        int solutionLimit = Integer.parseInt(args[0]);        
-        NAE nae = new NAE(args[1],args[2],solutionLimit);
+        //parse args
+        int solutionLimit = Integer.parseInt(args[0]);   
+        String model = args[1];
+        String spec = args[2];
+        String mode = args[3].toLowerCase();
+        boolean bmc = true;
+        boolean temporalLogicMode = false;
+        int bmc_length = defaultBMCLength;
+        boolean validate = false;
+
+        if(mode.equals("temporal_logic_bdd")){
+            mode = "temporal_logic";
+            bmc = false;
+            temporalLogicMode = true;
+        }
+        if(mode.equals("temporal_logic_bmc")){
+            mode = "temporal_logic";
+            temporalLogicMode = true;
+        }
+        if(mode.equals("ctl")){
+            bmc = false;
+        }
+        for(String a:args) {if (a.equals("-v")) validate = true;}
+        
+        for(int i =0;i<args.length-1;i++){
+            //if bmc is false throw an exception
+            if(!mode.equals("temporal_logic_bmc")){
+                System.out.println("BMC length can only be set in temporal_logic_bmc mode");
+                System.exit(0);
+            }
+            if(!spec.contains(".ltlspec")){
+                System.out.println("BMC length can only be set for .ltlspec files");
+                System.exit(0);                
+            }
+            if(args[i].equals("-bmc")) bmc_length = Integer.parseInt(args[i+1]);
+        }
+    
+        
+        
+        //see if combos  are legal and advisable
+        if(validate && !mode.equals("time_step")){
+            System.out.println("Currently, validation is only supported in time_step mode");
+            System.exit(0);
+        }
+        
+        if(spec.contains(".ctlspec") && bmc){
+            System.out.println("NusMV does not support Bounded Model Checking with CTL");
+            System.exit(0);
+        }
+        
+        if(!temporalLogicMode && (spec.contains(".ltlspec")||spec.contains(".ctlspec"))){
+            System.out.println(".ltlspec and .ctlspec files only supported in temporal_logic modes");
+        }
+        
+        if(!mode.equals("time_step") && spec.contains(".spec")){
+            System.out.println("Please note that time_step mode is optimized for .spec files");
+            System.out.println("The other modes are not optimized for this format, and don't support boolean expressions as specifications");
+            System.out.println("Spec files that contain such boolean expressions will not be parsed properly in this mode");
+        }
+        
+        if(mode.equals("ctl")){
+            System.out.println("Please note that ctl mode is under development");
+            System.out.println("for .ctlspec files use temporal_logic_bdd mode");
+        }
+        
+        Converter c = null;
+        try{
+            c = ConverterFactory.getConverter(model,spec,mode);
+        }catch(Exception e){
+            System.out.println(e.getMessage());
+            System.exit(0);
+        }
+        if(mode.equals("temporal_logic_bmc")){
+            if(spec.contains(".ltlspec")){
+                c.setDuration(bmc_length);
+            }
+        }
+        
+        //finally run NAE!
+        NAE nae = new NAE(c,solutionLimit);
         nae.runAnalysisInteractive();
         nae.printResults();
-        //nae.validate(args[1],args[2]);
+        if(validate) nae.validate(model,spec);
     }
     
     //the arguments are the names of the files to analyze
-    public NAE(String modelFileName,String observationFileName,int solutionLimit)throws Exception{
+    public NAE(Converter c,int solutionLimit){
         this.solutionLimit = solutionLimit;
-        converter = new TimeStep(modelFileName,observationFileName);
+        converter = c;
         resultSets = new ArrayList<>();
     }
     
     //validate the given files against the resultSets
-    void validate(String s1,String s2)throws Exception{
+    void validate(String model,String spec)throws Exception{
         for(ResultSet r:resultSets){
-            Validate v =  new Validate(s1,s2,r);
+            Validate v =  new Validate(model,spec,r);
             System.out.println(v.validate(converter.getNumberOfExperiments(),converter.getDuration(),converter.getExperimentToNumberMap()));
         }
     }
@@ -42,7 +142,7 @@ public class NAE{
         String nusmvFile = converter.getFileName();
 
         //create an interface for running nusmv
-        NuSMVInterface in = new NuSMVInterface(nusmvFile,true);
+        NuSMVInterface in = new NuSMVInterface(nusmvFile,converter);
         
         //result loop
         while(true){

@@ -350,16 +350,6 @@ public class TimeStep extends Converter{
         return new ResultSet(nodeVals,optionalConnections);
     }
 
-
-
-
-
-
-
-
-
-
-        
     String getModule(Node n,int valueNumber,int duration){
         StringBuilder module = new StringBuilder();
         module.append(n.getModuleDeclaration());        
@@ -461,9 +451,7 @@ public class TimeStep extends Converter{
         return module.toString();
     }
     
-    
-    
-
+    public SpecType getSpecType(){return SpecType.LTL_BMC_0;}
 }
 
 

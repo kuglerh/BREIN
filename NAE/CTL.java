@@ -238,6 +238,11 @@ public class CTL extends Converter{
         return module.toString();
     }
     
+    
+    public SpecType getSpecType(){return SpecType.CTL;}
+
+    
+    
 class Experiment{
     //all observations in this experiment
     private ArrayList<Observation> observations;

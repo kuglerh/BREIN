@@ -3,12 +3,11 @@ package NAE;
 import java.io.*;
 import java.util.*;
 
-public class LTLP extends Converter{
+public class TemporalLogic extends Converter{
     private HashMap<String,Experiment> experimentNameToObj;
 
-    private boolean LTL_MODE = false;
-    
-    public LTLP(String s1,String s2)throws Exception{
+    private boolean TL_MODE = false;
+    public TemporalLogic(String s1,String s2)throws Exception{
         super(s1,s2);
     }
    
@@ -150,7 +149,7 @@ public class LTLP extends Converter{
         return code.toString();
     }
 
-    String getSpecLTL(){
+    String getSpecTL(){
         StringBuilder code = new StringBuilder();
         code.append("(FALSE");
         
@@ -162,7 +161,7 @@ public class LTLP extends Converter{
     }
 
     String getSpec(){
-        return LTL_MODE ? getSpecLTL() : getSpecSTEP();
+        return TL_MODE ? getSpecTL() : getSpecSTEP();
     }
     
 
@@ -205,7 +204,7 @@ public class LTLP extends Converter{
     }
 
     //parse experiment from a file not of RE:IN type specs but of ltl
-    int parseExperimentLTL(String line,int expNum){
+    int parseExperimentTL(String line,int expNum){
         //remove semicolon
         line = line.replace(";","");
     
@@ -264,7 +263,7 @@ public class LTLP extends Converter{
     }
     
     int parseExperiment(String line,int expNum){
-        return LTL_MODE ? parseExperimentLTL(line,expNum) : parseExperimentSTEP(line,expNum);
+        return TL_MODE ? parseExperimentTL(line,expNum) : parseExperimentSTEP(line,expNum);
     }
               
     private int parseFixPoint(String line,int expNum){
@@ -307,14 +306,14 @@ public class LTLP extends Converter{
     }
         
     void parseObservation() throws Exception{
-        LTL_MODE = observationFileName.contains(".ltlspec");
+        TL_MODE = observationFileName.contains(".ltlspec") || observationFileName.contains(".ctlspec");
         super.parseObservation();
     }  
     public ResultSet parseAnswer(BufferedReader input)throws IOException{
-        return LTL_MODE ? parseAnswerLTL(input) : parseAnswerSTEP(input);
+        return TL_MODE ? parseAnswerTL(input) : parseAnswerSTEP(input);
     }
     
-    public ResultSet parseAnswerLTL(BufferedReader input)throws IOException{
+    public ResultSet parseAnswerTL(BufferedReader input)throws IOException{
         int timeStep = -2;
         int duration = getDuration();
         int numExp = getNumberOfExperiments();
@@ -521,7 +520,15 @@ public class LTLP extends Converter{
         return new ResultSet(nodeVals,optionalConnections);
     }
 
-    
+
+    public SpecType getSpecType(){
+        if(!TL_MODE) return SpecType.LTL_BMC;
+        
+         //{LTL_BMC, LTL_BDD,CTL}
+
+        return null;
+    }
+
     
     
     class Experiment{
