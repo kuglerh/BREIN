@@ -63,15 +63,19 @@ public class NAE{
         
         for(int i =0;i<args.length-1;i++){
             //if bmc is false throw an exception
-            if(!mode.equals("temporal_logic_bmc")){
-                System.out.println("BMC length can only be set in temporal_logic_bmc mode");
-                System.exit(0);
+            if(args[i].equals("-bmc")) {
+                                                 
+                bmc_length = Integer.parseInt(args[i+1]);
+
+                if(!mode.equals("temporal_logic_bmc")){
+                    System.out.println("BMC length can only be set in temporal_logic_bmc mode");
+                    System.exit(0);
+                }
+                if(!spec.contains(".ltlspec")){
+                    System.out.println("BMC length can only be set for .ltlspec files");
+                    System.exit(0);                
+                }
             }
-            if(!spec.contains(".ltlspec")){
-                System.out.println("BMC length can only be set for .ltlspec files");
-                System.exit(0);                
-            }
-            if(args[i].equals("-bmc")) bmc_length = Integer.parseInt(args[i+1]);
         }
     
         

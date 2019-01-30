@@ -6,8 +6,8 @@ import java.util.*;
 public class TemporalLogic extends Converter{
     private HashMap<String,Experiment> experimentNameToObj;
 
-    private boolean TL_MODE = false;
-    private boolean CTL_MODE = false;
+    private boolean TL_MODE;
+    private boolean CTL_MODE;
     public TemporalLogic(String s1,String s2)throws Exception{
         super(s1,s2);
     }
@@ -157,8 +157,10 @@ public class TemporalLogic extends Converter{
         for(String r:restrictions){
             code.append("|("+r+")");
         }
-        code.append(")");        
-        return "X("+code.toString().replaceAll("\\s+","")+")";
+        code.append(")");  
+
+        String next = CTL_MODE ? "AX" : "X";
+        return next+"("+code.toString().replaceAll("\\s+","")+")";
     }
 
     String getSpec(){
@@ -327,17 +329,15 @@ public class TemporalLogic extends Converter{
         while((line=input.readLine()) != null) {
             //remove all whitespace 
             line = line.replaceAll("\\s+","");
-            
                      
             if(line.contains("--specification")&&line.contains("istrue")) return null;
 
         
             //parse connections --
-            else if(line.contains("_connected=")){
+            else if(line.contains("connected=")){
                 String[] tokens = line.split("_|=");
                 String connectionName = tokens[0];
                 boolean value = Boolean.parseBoolean(tokens[2]);
-                
                 //add data
                 optionalConnections.put(connectionName,value);
             }

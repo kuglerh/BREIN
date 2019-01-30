@@ -7,7 +7,7 @@ public class ConverterFactory{
             case "time_step": return new TimeStep(modelFileName,observationFileName);
             case "ctl": return new CTL(modelFileName,observationFileName);
             case "temporal_logic": return new TemporalLogic(modelFileName,observationFileName);
-            default: throw new IllegalArgumentException("Error: unknown Converter type");
+            default: throw new IllegalArgumentException("Error: unknown Converter type "+type);
         }
     }
     

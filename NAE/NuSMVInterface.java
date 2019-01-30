@@ -78,7 +78,7 @@ public class NuSMVInterface{
         //remove newlines
         spec = spec.replaceAll("\\s+","").replace("@"," ");
         //execute command
-        out.println("check_ltlspec -p \""+spec+"\"");
+        out.println("check_ctlspec -p \""+spec+"\"");
         out.flush();
         String s = readPrompt();
         return s;
