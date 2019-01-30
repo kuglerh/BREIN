@@ -7,6 +7,7 @@ public class TemporalLogic extends Converter{
     private HashMap<String,Experiment> experimentNameToObj;
 
     private boolean TL_MODE = false;
+    private boolean CTL_MODE = false;
     public TemporalLogic(String s1,String s2)throws Exception{
         super(s1,s2);
     }
@@ -307,6 +308,7 @@ public class TemporalLogic extends Converter{
         
     void parseObservation() throws Exception{
         TL_MODE = observationFileName.contains(".ltlspec") || observationFileName.contains(".ctlspec");
+        CTL_MODE = observationFileName.contains(".ctlspec");
         super.parseObservation();
     }  
     public ResultSet parseAnswer(BufferedReader input)throws IOException{
@@ -523,10 +525,11 @@ public class TemporalLogic extends Converter{
 
     public SpecType getSpecType(){
         if(!TL_MODE) return SpecType.LTL_BMC;
-        
-         //{LTL_BMC, LTL_BDD,CTL}
-
-        return null;
+        if(CTL_MODE) return SpecType.CTL;
+        //otherwise, we are in LTL mode, and can run in either BDD mode or BMC mode
+        //if duration is non zero, return BMC mode
+        if(duration != 0) return SpecType.LTL_BMC;
+        return SpecType.LTL_BDD;
     }
 
     
