@@ -3,7 +3,7 @@ requires Java and NuSMV to be on the path
 
 Building NAE:
 navigate to the directory containng this readME. Type:
-javac NAE\*.java verify\*.java
+javac NAE\*.java validate\*.java
 jar cvfm NAE.jar NAE\manifest.txt NAE\*.class validate\*.class
 
 This creates a file named "NAE.jar"
@@ -24,4 +24,42 @@ java -jar NAE.jar  <solution limit> <model file path> <observation file path> <m
 additionally there are optional arguments, which, if specified, must be after the 4 required arguments. They are:
 -v to perform validation on solutions 
 -bmc <length> to specify the bounds of bmc. Default is 20.
+
+Specific details on running the test models:
+
+models under the directory testModels are valid RE:IN models that NAE can run under time_step mode. To run them:
+
+java -jar NAE.jar 100 TestModels\toy_model\model.net TestModels\toy_model\observations.spec time_step
+java -jar NAE.jar 1 TestModels\minimal_pl\model.net TestModels\minimal_pl\observations.spec time_step
+java -jar NAE.jar 1 TestModels\pluripotency_model\model.net TestModels\pluripotency_model\observation.spec time_step
+java -jar NAE.jar 1 TestModels\pluripotency_modified\model.net TestModels\pluripotency_modified\observations.spec time_step
+java -jar NAE.jar 10 TestModels\myloid_model\model.net TestModels\myloid_model\observations.spec time_step
+
+NOTE: add -v to perform validation, but leave it out when running benchmarks.
+
+models in the CTL directory should be run as follows:
+java -jar NAE.jar 100 CTL\toy_model_ctl\model.net CTL\toy_model_ctl\observations.ctlspec temporal_logic_bdd
+
+NOTE:validation is not supported in this mode
+
+models in LTL directory can be run in 2 ways as follows:
+
+
+NOTE:validation is not supported in this mode
+java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bdd
+java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bmc -bmc 20
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

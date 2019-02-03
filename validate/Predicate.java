@@ -8,7 +8,7 @@ class Predicate{
     private String predicate;
     private String name;
     Predicate(ResultSet r,String predicate){
-        predicate = predicate.replace("and","&").replace("or","|").replaceAll(";|\\}|\\{|\\s+","");
+        predicate = predicate.replace("and","&").replaceAll(";|\\}|\\{|\\s+","").replace("(or)","(|)").replace("(or","(|").replace("or)","|)");
         String[] tokens = predicate.split(":=");
         if(tokens.length!=2) throw new IllegalArgumentException("Error: Unexpected syntax in observation file predicates");
         this.name = tokens[0];

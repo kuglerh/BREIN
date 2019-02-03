@@ -47,22 +47,7 @@ public class NAE{
         int bmc_length = defaultBMCLength;
         boolean validate = false;
 
-        if(mode.equals("temporal_logic_bdd")){
-            mode = "temporal_logic";
-            bmc = false;
-            temporalLogicMode = true;
-        }
-        if(mode.equals("temporal_logic_bmc")){
-            mode = "temporal_logic";
-            temporalLogicMode = true;
-        }
-        if(mode.equals("ctl")){
-            bmc = false;
-        }
-        for(String a:args) {if (a.equals("-v")) validate = true;}
-        
         for(int i =0;i<args.length-1;i++){
-            //if bmc is false throw an exception
             if(args[i].equals("-bmc")) {
                                                  
                 bmc_length = Integer.parseInt(args[i+1]);
@@ -77,7 +62,25 @@ public class NAE{
                 }
             }
         }
-    
+            
+        
+        
+        
+        if(mode.equals("temporal_logic_bdd")){
+            mode = "temporal_logic";
+            bmc = false;
+            temporalLogicMode = true;
+        }
+        if(mode.equals("temporal_logic_bmc")){
+            mode = "temporal_logic";
+            temporalLogicMode = true;
+        }
+        if(mode.equals("ctl")){
+            bmc = false;
+        }
+        for(String a:args) {if (a.equals("-v")) validate = true;}
+        
+
         
         
         //see if combos  are legal and advisable

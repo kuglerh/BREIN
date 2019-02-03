@@ -18,7 +18,7 @@ class Assertion{
         assertion = line.toString();
         
         //replace and or and not with proper NuSMV operators, and ten remove all spaces
-        this.assertion = assertion.replace("and","&").replace("or","|").replace("not","!").replaceAll(";|\\s+","");
+        this.assertion = assertion.replace("and","&").replace("not","!").replaceAll(";|\\s+","").replace("(or)","(|)").replace("(or","(|").replace("or)","|)");
         
     }
 
