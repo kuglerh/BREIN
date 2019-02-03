@@ -116,7 +116,7 @@ public class NAE{
             System.out.println(e.getMessage());
             System.exit(0);
         }
-        if(mode.equals("temporal_logic_bmc")){
+        if( args[3].toLowerCase().equals("temporal_logic_bmc")){
             if(spec.contains(".ltlspec")){
                 c.setDuration(bmc_length);
             }

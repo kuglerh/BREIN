@@ -57,7 +57,7 @@ public class NuSMVInterface{
         //get bound
         int duration = c.getDuration()+1;
         //execute command
-        out.println("check_ltlspec_bmc -k "+duration+" -p \""+spec+"\"");
+        out.println("check_ltlspec_bmc_inc -k "+duration+" -p \""+spec+"\"");
         out.flush();
         String s = readPrompt();
         return s;

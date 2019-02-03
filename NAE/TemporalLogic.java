@@ -326,7 +326,7 @@ public class TemporalLogic extends Converter{
         
        
         String line = null;
-        while((line=input.readLine()) != null) {
+        while((line=input.readLine()) != null) { 
             //remove all whitespace 
             line = line.replaceAll("\\s+","");
                      
@@ -395,7 +395,7 @@ public class TemporalLogic extends Converter{
             }
             
             //if no answer return null
-            else if(line.contains("--nocounterexamplefoundwithbound19")) return null;
+            else if(line.contains("--nocounterexamplefoundwithbound"+(duration+1)))return null;
         }
         
         //add functions of nodes with only one possible function
