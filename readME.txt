@@ -49,6 +49,12 @@ NOTE:validation is not supported in this mode
 java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bdd
 java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bmc -bmc 20
 
+Advantages of temporal logic modes: sometimes converting to temmporal logic speeds up finding solution. Compare pluripotencymod10
+
+
+
+
+
 
 
 
