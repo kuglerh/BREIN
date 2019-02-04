@@ -82,7 +82,6 @@ public class NAE{
         
 
         
-        
         //see if combos  are legal and advisable
         if(validate && !mode.equals("time_step")){
             System.out.println("Currently, validation is only supported in time_step mode");
@@ -97,7 +96,7 @@ public class NAE{
         if(!temporalLogicMode && (spec.contains(".ltlspec")||spec.contains(".ctlspec"))){
             System.out.println(".ltlspec and .ctlspec files only supported in temporal_logic modes");
         }
-        
+
         if(!mode.equals("time_step") && spec.contains(".spec")){
             System.out.println("Please note that time_step mode is optimized for .spec files");
             System.out.println("The other modes are not optimized for this format, and don't support boolean expressions as specifications");
@@ -108,20 +107,20 @@ public class NAE{
             System.out.println("Please note that ctl mode is under development");
             System.out.println("for .ctlspec files use temporal_logic_bdd mode");
         }
-        
         Converter c = null;
         try{
             c = ConverterFactory.getConverter(model,spec,mode);
         }catch(Exception e){
+            e.printStackTrace();
             System.out.println(e.getMessage());
             System.exit(0);
-        }
+        }                        
+
         if( args[3].toLowerCase().equals("temporal_logic_bmc")){
             if(spec.contains(".ltlspec")){
                 c.setDuration(bmc_length);
             }
         }
-        
         //finally run NAE!
         NAE nae = new NAE(c,solutionLimit);
         nae.runAnalysisInteractive();
