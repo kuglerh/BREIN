@@ -102,7 +102,7 @@ public class TemporalLogic extends Converter{
     }
 
     
-    String generateNuSMV(){
+    void generateNuSMV(String name)throws Exception{
         int valueNumber = experiments.size();
         StringBuilder code = new StringBuilder();
 
@@ -129,7 +129,7 @@ public class TemporalLogic extends Converter{
         }
             
         //don't add specs, as they will be inputed in interactive mode
-        return code.toString();
+        stringToFile(code.toString(),name);
     }
    
     String getSpecSTEP(){

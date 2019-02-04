@@ -166,34 +166,34 @@ public class TimeStep extends Converter{
         return expNum;
     }
 
-    String generateNuSMV(){
+    void generateNuSMV(String name)throws Exception{
         int valueNumber = experiments.size();
-        StringBuilder code = new StringBuilder();
+        PrintWriter code = new PrintWriter(name, "UTF-8");
+
 
         
-        //append all modules
+        //print all modules
         for(Node n:nodes.values()){
-            code.append(getModule(n,valueNumber,duration));
+            code.print(getModule(n,valueNumber,duration));
         }
 
         //add main module
-        code.append("MODULE main\nVAR\n");
+        code.print("MODULE main\nVAR\n");
         for(Node n:nodes.values()){
-            code.append(n.getInitialization());
+            code.print(n.getInitialization());
         }
         
         
         //add the macros
-        code.append("DEFINE\n");
+        code.print("DEFINE\n");
         
         //since we have multiple value vars for the parallel model mode, add corresponding definitions
         for(int i = 0; i < valueNumber;i++){
             for(int step = 0;step<duration;step++){
-                code.append(definitions.replace(" ","").replace(":=",step+"-"+i+":=").replace("value","value"+step+"-"+(i)).replace(".FE",".FE"+(i)).replace(".KO",".KO"+(i)));
+                code.print(definitions.replace(" ","").replace(":=",step+"-"+i+":=").replace("value","value"+step+"-"+(i)).replace(".FE",".FE"+(i)).replace(".KO",".KO"+(i)));
             }
         }
-                
-        return code.toString();
+        code.close();      
     }
         
     String getSpec(){

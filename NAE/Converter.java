@@ -55,7 +55,7 @@ public abstract class Converter{
         String name = modelFileName.split("\\.")[0]+".smv";
         parseModel();
         parseObservation();
-        stringToFile(generateNuSMV(),name);
+        generateNuSMV(name);
         return name;
     }
     
@@ -291,7 +291,7 @@ public abstract class Converter{
     //abstract methods 
     abstract String observationMacroToDefineStatement(String s);
     abstract int parseExperiment(String line,int expNum);
-    abstract String generateNuSMV();
+    abstract void generateNuSMV(String name)throws Exception;
     abstract public void restrictResult(ResultSet r);
     abstract String getSpec();
     abstract public ResultSet parseAnswer(BufferedReader input)throws IOException;

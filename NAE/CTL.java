@@ -179,7 +179,7 @@ public class CTL extends Converter{
     
     }
     
-    String generateNuSMV(){
+    void generateNuSMV(String name)throws Exception{
         int valueNumber = experimentNameToObj.size();
         StringBuilder code = new StringBuilder();
         //if we are using CTL , i is only to distinguish between initial and non-initial states
@@ -197,7 +197,7 @@ public class CTL extends Converter{
         code.append("DEFINE\n");
         code.append(definitions);
         //don't add specs, as they will be inputed in interactive mode
-        return code.toString();
+        stringToFile(code.toString(),name);
     }
     
     String getModule(Node n){
