@@ -5,7 +5,7 @@ import java.util.ArrayList;
 //This class represents a node in the ABN(abstract boolean network)
 class Node{
     //the node's name
-    private String name;
+    String name;
     //some nodes are allowed to be knocked out
     boolean KO;
     //some nodes are allowed to be overexpressed, called FE

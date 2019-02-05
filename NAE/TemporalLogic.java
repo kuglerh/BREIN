@@ -92,11 +92,8 @@ public class TemporalLogic extends Converter{
         //if the node is synchronous, we end the transition here. Otherwise, we want to add a union with its current value
         //which essentially allows some nodes to update, some not to, giving asynchronous behavior
         
-        if(n.sync){
             module.append("\n");
-        }else{
-            module.append("\nFAIRNESS\nrunning;\n");
-        }
+        
         
         return module.toString();
     }
@@ -114,7 +111,7 @@ public class TemporalLogic extends Converter{
         code.append("i : boolean;\n");
        
         for(Node n:nodes.values()){
-            code.append(n.getInitialization());
+            code.append(getInitialization(n,sync));
         }
         code.append("ASSIGN\n");
         
@@ -248,18 +245,16 @@ public class TemporalLogic extends Converter{
                 expNum++;
             }
             
-            //macro format is name<timeStep>-<ExpNum>
             String macroName = tokens[1].replace("$","");
             macroName = macroName  + experiments.get(expName);
             replacments.put(r,macroName);
         }
         
-        
+
         //perform replacements
         for (Map.Entry<String, String> entry : replacments.entrySet()){
             line = line.replace(entry.getKey(),entry.getValue());
         }
-        
         restrictions.add("!("+line+")");
         
         return expNum;
@@ -532,6 +527,17 @@ public class TemporalLogic extends Converter{
         return SpecType.LTL_BDD;
     }
 
+     
+    //return a string representing how to declare this node as a module in the main module of the nusmv  program
+    private String getInitialization(Node n,boolean sync){
+        String p = sync ? "":"process";
+        StringBuilder init =  new StringBuilder(n.name+" : " +p+ " node_"+n.name+"(self");
+        for(Input input:n.inputs){
+            init.append(","+input.name);
+        }    
+        init.append(");\n");
+        return init.toString();
+    }
     
     
     class Experiment{
