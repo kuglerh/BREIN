@@ -76,9 +76,14 @@ $Progenitor := {
 //experimental observations
 
 
-EF ((#MonocyteDiff|= $Progenitor));
+EX ((#MonocyteDiff|= $Progenitor));
 EF ((#MonocyteDiff|= $Granulocyte));
 
+EF (AG (!(#MonocyteDiff|= $Progenitor)));
+EF (!(#MonocyteDiff|= $Granulocyte));
 
-EF(!(#GranulocyteDiff |= $Progenitor)); 
-AF (EG(#GranulocyteDiff|= $Progenitor));
+
+EF((#GranulocyteDiff |= $Progenitor)); 
+EF (!(EG(#GranulocyteDiff|= $Progenitor)));
+AF(!(#GranulocyteDiff |= $Progenitor)) | (AF((#GranulocyteDiff |= $Progenitor))); 
+(AF (EG(#GranulocyteDiff|= $Progenitor)) -> (AX ((#MonocyteDiff|= $Progenitor))));

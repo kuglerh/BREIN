@@ -6,9 +6,7 @@ directive regulation default;
 Gfi1[](0..8); EgrNab[](0..8); cjun[](0..8); PU1[](0..8); CEBPa[](0..8); SCL[](0..8); Fli1[](0..8); EKLF[](0..8); FOG1[](0..8); GATA1[](0..8); GATA2[](0..8); 
 Gfi1	cjun	negative; 
 SCL	CEBPa	negative; 
-FOG1	CEBPa	negative; 
-GATA1	CEBPa	negative; 
-CEBPa	Gfi1	positive; 
+ 
 CEBPa	PU1	    positive optional; 
 CEBPa	CEBPa	positive optional; 
 Gfi1	EgrNab	negative optional; 

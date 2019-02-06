@@ -34,24 +34,43 @@ java -jar NAE.jar 1 TestModels\minimal_pl\model.net TestModels\minimal_pl\observ
 java -jar NAE.jar 1 TestModels\pluripotency_model\model.net TestModels\pluripotency_model\observation.spec time_step
 java -jar NAE.jar 1 TestModels\pluripotency_modified\model.net TestModels\pluripotency_modified\observations.spec time_step
 java -jar NAE.jar 10 TestModels\myloid_model\model.net TestModels\myloid_model\observations.spec time_step
-
+java -jar NAE.jar 10 TestModels\pluripotency_model10\model.net TestModels\pluripotency_model10\observation.spec time_step
 NOTE: add -v to perform validation, but leave it out when running benchmarks.
 
 models in the CTL directory should be run as follows:
 java -jar NAE.jar 100 CTL\toy_model_ctl\model.net CTL\toy_model_ctl\observations.ctlspec temporal_logic_bdd
+java -jar NAE.jar 25 CTL\asyncMultiplePathExample\model.net CTL\asyncMultiplePathExample\observations.ctlspec temporal_logic_bdd
 
 NOTE:validation is not supported in this mode
 
-models in LTL directory can be run in 2 ways as follows:
+models in LTL directory can be run in 2 ways, either in temporal_logic_bdd mode or temporal_logic_bmc mode:
 
-
-NOTE:validation is not supported in this mode
 java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bdd
 java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bmc -bmc 20
+java -jar NAE.jar 10 LTL\pluripotency10_ltl\model.net LTL\pluripotency10_ltl\observation.ltlspec temporal_logic_bmc
+java -jar NAE.jar 25 LTL\ComplexLTLExample\model.net LTL\ComplexLTLExample\observation.ltlspec temporal_logic_bmc
 
-Advantages of temporal logic modes: sometimes converting to temmporal logic speeds up finding solution. Compare pluripotencymod10
+NOTE:validation is not supported in this mode
 
+Advantages of NAE:
+1) Speed. Compare Benchmarks of NAE to RE:IN on the time_step models 
 
+2) Expressivness. This comes with 2 benefits.
+
+1) In some cases, translating a time-step spec into its equivalent temporal logic form  can result in a speed up. See transaltion of toy model into LTL/CTL for an idea of how such a translation looks. Compare:
+java -jar NAE.jar 10 TestModels\pluripotency_model10\model.net TestModels\pluripotency_model10\observation.spec time_step
+java -jar NAE.jar 10 LTL\pluripotency10_ltl\model.net LTL\pluripotency10_ltl\observation.ltlspec temporal_logic_bmc
+Also compare to RE:IN
+
+2) Can express specs not possible in RE:IN. LTL and CTL have overlap, but are different in expressive power, and bot hare useful.
+
+Example of LTL expressivness:
+java -jar NAE.jar 25 LTL\ComplexLTLExample\model.net LTL\ComplexLTLExample\observation.ltlspec temporal_logic_bmc
+
+This model contains complex LTL statements, such as seeing if a predicate will ever hold in the future, ensuring that a predicate is true until a second one holds, and that ine predicate frees a second one, seeing a property always holds, or only holds once.
+
+Example of CTL expressivness. CTLs benefits really shine when verifying async models, where things are not deterministic. Since CTL can look at different branches, we can use it to ensure that a given async concrete model can potentially satisfy different contradictory conditions. For example, we can asertain that experiment N can theoretically stabilize at state A and can theoretically stabilize at state B. 
+java -jar NAE.jar 25 CTL\asyncMultiplePathExample\model.net CTL\asyncMultiplePathExample\observations.ctlspec temporal_logic_bdd
 
 
 
