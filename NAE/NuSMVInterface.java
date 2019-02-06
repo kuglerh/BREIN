@@ -10,7 +10,7 @@ public class NuSMVInterface{
     //takes a path to an smv file and a converter which dictates  how to perform verification
     public NuSMVInterface(String path,Converter c)throws Exception{
         //get NuSMV up and running                
-        ProcessBuilder b = new ProcessBuilder(new String[]{"nusmv","-int",path});
+        ProcessBuilder b = new ProcessBuilder(new String[]{"NuSMV","-int",path});
         b.redirectErrorStream(true);
         pr = b.start();
         in = new Scanner(pr.getInputStream());
