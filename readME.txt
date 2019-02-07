@@ -1,82 +1,50 @@
-requires Java and NuSMV to be on the path
+How to build and run NAE:
 
+Dependencies:
+NAE requires both the java SDK and NuSMV to be on the path.  It was tested using java version 1.8.0_144 and NuSMV-2.6.0.
 
-Building NAE:
-navigate to the directory containng this readME. Type:
+Building:
+to build NAE type the following two commands from within the NetworkAnalysisEngine directory:
 javac NAE\*.java validate\*.java
 jar cvfm NAE.jar NAE\manifest.txt NAE\*.class validate\*.class
 
 This creates a file named "NAE.jar"
 
-Running NAE:
-navigate to the same directory as before and type:
+Running:
+The following is the syntax for running NAE from the command line assuming we are in the  NetworkAnalysisEngine  directory:
 java -jar NAE.jar  <solution limit> <model file path> <observation file path> <mode>
 
 <Solution limit> is the number of solutions to search for
 <model file path> is a path to a model file ending in .net
 <observation file path> is a path to a spec file ending in .spec or .cltspec or .ltlspec
 <mode> is the mode of encoding in NuSMV. Current modes are:
-    time_step for use with .spec files, 
-    temporal_logic_bmc for use with .ctlspec and .ltlspec files to run the SAT solver with bounded model checking
-    temporal_logic_bdd for use with .ctlspec and .ltlspec files to use the BDD algorithms for verification
-    ctl currently under development, but theoritcally more optomized for .ctlspec files
+    time_step:                     for use with .spec files, 
+    temporal_logic_bmc:      for use with .ctlspec and .ltlspec files to run the SAT solver with bounded model checking
+    temporal_logic_bdd:       for use with .ctlspec and .ltlspec files to use the BDD algorithms for verification
+    ctl:                                currently under development, but theoritcally more optomized for .ctlspec files
 
 additionally there are optional arguments, which, if specified, must be after the 4 required arguments. They are:
 -v to perform validation on solutions 
 -bmc <length> to specify the bounds of bmc. Default is 20.
 
-Specific details on running the test models:
+Validation is currently only supported on solutions from time_step mode.
 
-models under the directory testModels are valid RE:IN models that NAE can run under time_step mode. To run them:
+Test models:
+The test models in the testModels directory are meant to be run in time_step mode. Many of the included examples outperformed RE:IN on benchmarks. 
 
-java -jar NAE.jar 100 TestModels\toy_model\model.net TestModels\toy_model\observations.spec time_step
-java -jar NAE.jar 1 TestModels\minimal_pl\model.net TestModels\minimal_pl\observations.spec time_step
-java -jar NAE.jar 1 TestModels\pluripotency_model\model.net TestModels\pluripotency_model\observation.spec time_step
-java -jar NAE.jar 1 TestModels\pluripotency_modified\model.net TestModels\pluripotency_modified\observations.spec time_step
-java -jar NAE.jar 10 TestModels\myloid_model\model.net TestModels\myloid_model\observations.spec time_step
-java -jar NAE.jar 10 TestModels\pluripotency_model10\model.net TestModels\pluripotency_model10\observation.spec time_step
-NOTE: add -v to perform validation, but leave it out when running benchmarks.
+The test models in the CTL directory are meant to be run in temporal_logic_bdd mode (NuSMV does not support BMC based verification of CTL). One of the models included demonstrates the
+usefulness of  CTL for asyncranous models, and is able to specify constraints on different possible paths that the non-deterministic asyncranous model can take.
 
-models in the CTL directory should be run as follows:
-java -jar NAE.jar 100 CTL\toy_model_ctl\model.net CTL\toy_model_ctl\observations.ctlspec temporal_logic_bdd
-java -jar NAE.jar 25 CTL\asyncMultiplePathExample\model.net CTL\asyncMultiplePathExample\observations.ctlspec temporal_logic_bdd
+The test models in the LTL directory can be run in either temporal_logic_bdd mode or temporal_logic_bmc mode, although the latter generally performs better than the former.
+Included is a model that demonstrate the complex specifications LTL is capable of, as well as models that demonstrate how translation of RE:IN time-step style specs into LTL can sometimes result in a
+performance boost (contrast the pluripotency_model10 under timestep mode with its LTL translation pluripotency10_ltl).
 
-NOTE:validation is not supported in this mode
-
-models in LTL directory can be run in 2 ways, either in temporal_logic_bdd mode or temporal_logic_bmc mode:
-
-java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bdd
-java -jar NAE.jar 100 LTL\toy_model_ltl\model.net LTL\toy_model_ltl\observations.ltlspec temporal_logic_bmc -bmc 20
-java -jar NAE.jar 10 LTL\pluripotency10_ltl\model.net LTL\pluripotency10_ltl\observation.ltlspec temporal_logic_bmc
-java -jar NAE.jar 25 LTL\ComplexLTLExample\model.net LTL\ComplexLTLExample\observation.ltlspec temporal_logic_bmc
-
-NOTE:validation is not supported in this mode
-
-Advantages of NAE:
-1) Speed. Compare Benchmarks of NAE to RE:IN on the time_step models 
-
-2) Expressivness. This comes with 2 benefits.
-
-1) In some cases, translating a time-step spec into its equivalent temporal logic form  can result in a speed up. See transaltion of toy model into LTL/CTL for an idea of how such a translation looks. Compare:
-java -jar NAE.jar 10 TestModels\pluripotency_model10\model.net TestModels\pluripotency_model10\observation.spec time_step
-java -jar NAE.jar 10 LTL\pluripotency10_ltl\model.net LTL\pluripotency10_ltl\observation.ltlspec temporal_logic_bmc
-Also compare to RE:IN
-
-2) Can express specs not possible in RE:IN. LTL and CTL have overlap, but are different in expressive power, and bot hare useful.
-
-Example of LTL expressivness:
-java -jar NAE.jar 25 LTL\ComplexLTLExample\model.net LTL\ComplexLTLExample\observation.ltlspec temporal_logic_bmc
-
-This model contains complex LTL statements, such as seeing if a predicate will ever hold in the future, ensuring that a predicate is true until a second one holds, and that ine predicate frees a second one, seeing a property always holds, or only holds once.
-
-Example of CTL expressivness. CTLs benefits really shine when verifying async models, where things are not deterministic. Since CTL can look at different branches, we can use it to ensure that a given async concrete model can potentially satisfy different contradictory conditions. For example, we can asertain that experiment N can theoretically stabilize at state A and can theoretically stabilize at state B. 
-java -jar NAE.jar 25 CTL\asyncMultiplePathExample\model.net CTL\asyncMultiplePathExample\observations.ctlspec temporal_logic_bdd
-
-
-
-
-
-
+Evaluating the tool:
+Included in the NetworkAnalysisEngine directory is a bash script named test that builds the tool and runs all of the test models under various parameters, printing the results and providing benchmarks. 
+Please note that some of the very large models take up alot of memory and may not run properly if the virtual machine has less than 10 GB of memory. 
+Make sure the terminal window is opened to fullscreen for proper formatting.
+the bash script should be run by invoking: 
+> bash test
 
 
 
