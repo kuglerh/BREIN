@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -o xtrace
 echo Building NAE:
 clear
 javac NAE/*.java validate/*.java
